@@ -1,473 +1,79 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Fitness Auth Challenge</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
-
-<style>
-* { margin:0; padding:0; box-sizing:border-box; font-family:'Poppins', sans-serif; }
-body { min-height:100vh; display:flex; justify-content:center; align-items:center; background: linear-gradient(135deg, #0f2027, #203a43, #2c5364); }
-.container { width:370px; padding:30px; background: rgba(0,0,0,0.75); border-radius:20px; backdrop-filter: blur(15px); box-shadow:0 0 30px rgba(0,0,0,0.6); color:#fff; display:none; }
-#loginSection { display:block; }
-h2, h3 { text-align:center; margin-bottom:15px; }
-.input-group { margin-bottom:15px; }
-input { width:100%; padding:10px; border:none; border-radius:10px; background:rgba(255,255,255,0.1); color:#fff; outline:none; }
-button { width:100%; padding:12px; margin-top:10px; border:none; border-radius:10px; background: linear-gradient(90deg, #8e2de2, #4a00e0); color:#fff; cursor:pointer; transition:0.2s; font-weight:500; }
-button:hover { transform:scale(1.05); }
-.small-btn { width:auto; padding:8px 14px; margin:5px; }
-.level-buttons { text-align:center; margin-bottom:10px; }
-#exerciseImage { width:100%; height:260px; object-fit:contain; background:#ffffff; padding:15px; border-radius:18px; margin:10px 0; display:none; }
-.message { text-align:center; font-size:14px; margin:15px 0; min-height:1.6em; }
-.error { color:#ff6b6b; font-weight:bold; }
-.success { color:#00ff88; font-weight:bold; font-size:1.25rem; }
-#quoteBox { margin-top:10px; font-style:italic; text-align:center; color:#ffdd57; }
-#timerDisplay { text-align:center; font-size:2.2rem; font-weight:600; margin:15px 0; color:#00ff88; min-height:2.5rem; }
-.completed { color:#00ff88 !important; }
-.timer-section { display:none; text-align:center; margin:15px 0; }
-.placeholder-text { text-align:center; color:#aaa; font-size:1.1rem; margin:20px 0; }
-.streak-line { margin:8px 0; font-size:1.15rem; }
-.streak-line strong { color:#ffdd57; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fitness Challenge</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        /* Add more styles as needed */
+    </style>
 </head>
 <body>
+    <header>
+        <h1>Welcome to the Fitness Challenge</h1>
+        <nav>
+            <ul>
+                <li><a href="#login">Login</a></li>
+                <li><a href="#exercises">Exercises</a></li>
+                <li><a href="#timer">Timer</a></li>
+                <li><a href="#streaks">Streaks</a></li>
+                <li><a href="#audio">Audio</a></li>
+            </ul>
+        </nav>
+    </header>
+    <section id="login">
+        <h2>Login System</h2>
+        <form>
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" required>
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required>
+            <button type="submit">Login</button>
+        </form>
+    </section>
+    <section id="exercises">
+        <h2>Available Exercises</h2>
+        <ul>
+            <li>Push-ups</li>
+            <li>Squats</li>
+            <li>Burpees</li>
+            <li>Plank</li>
+            <li>Jumping Jacks</li>
+        </ul>
+    </section>
+    <section id="timer">
+        <h2>Timer</h2>
+        <p>Start your workout!</p>
+        <button id="start-timer">Start Timer</button>
+        <div id="time-display">00:00</div>
+    </section>
+    <section id="streaks">
+        <h2>Your Streaks</h2>
+        <p>Days completed: <span id="streak-count">0</span></p>
+    </section>
+    <section id="audio">
+        <h2>Audio Features</h2>
+        <button id="play-audio">Play Audio</button>
+    </section>
+    <script>
+        // JavaScript for timer functionality
+        let timer;
+        document.getElementById("start-timer").addEventListener("click", function () {
+            let seconds = 0;
+            timer = setInterval(function () {
+                seconds++;
+                const minutes = Math.floor(seconds / 60);
+                const displayedSeconds = seconds % 60;
+                document.getElementById("time-display").innerText = `${minutes}:${displayedSeconds < 10 ? '0' : ''}${displayedSeconds}`;
+            }, 1000);
+        });
 
-<!-- LOGIN / SIGN UP -->
-<div class="container" id="loginSection">
-    <h2 id="formTitle">Login</h2>
-    <div class="message" id="authMessage"></div>
-    <div class="input-group"><input type="text" id="username" placeholder="Username"></div>
-    <div class="input-group"><input type="password" id="password" placeholder="Password"></div>
-    <button id="authBtn">Login</button>
-    <button onclick="toggleForm()" class="small-btn">Switch to Sign Up</button>
-</div>
-
-<!-- CHALLENGE -->
-<div class="container" id="challengeSection">
-<h3>Welcome, <span id="displayUser"></span> 👋</h3>
-<h2>🔥 Fitness Challenge</h2>
-
-<div class="level-buttons">
-    <button class="small-btn" onclick="generateChallenge('easy')">Easy</button>
-    <button class="small-btn" onclick="generateChallenge('moderate')">Moderate</button>
-    <button class="small-btn" onclick="generateChallenge('hard')">Hard</button>
-</div>
-
-<div class="placeholder-text" id="startHint">
-    You can Start by Selecting Levels above 👆
-</div>
-
-<h3 id="exerciseName"></h3>
-<img id="exerciseImage" src="" alt="Exercise">
-<p id="exerciseDescription"></p>
-
-<div class="timer-section" id="timerSection">
-    <p id="timerDisplay">—:--</p>
-    <button id="startTimerBtn" class="small-btn" style="background: linear-gradient(90deg, #00c853, #00b140);">Start Timer</button>
-</div>
-
-<div style="text-align:center; margin:15px 0;">
-    <button id="completeBtn" class="small-btn" style="display:none;">Mark as Completed</button>
-</div>
-
-<p id="challengeMessage" class="message"></p>
-
-<div class="streak-section">
-    <p class="streak-line">Easy streak: <strong><span id="easyStreakCount">0</span></strong> 🔥</p>
-    <p class="streak-line">Moderate streak: <strong><span id="moderateStreakCount">0</span></strong> 🔥</p>
-    <p class="streak-line">Hard streak: <strong><span id="hardStreakCount">0</span></strong> 🔥</p>
-</div>
-
-<p id="quoteBox">Complete a challenge to see motivation!</p>
-
-<button onclick="logout()" class="small-btn">Logout</button>
-</div>
-
-<script>
-// Audio ─────────────────────────────────────────────
-let audioCtx = null;
-function initAudio() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
-function playNote(freq, duration = 0.25, volume = 0.35, type = 'sine') {
-    if (!audioCtx) initAudio();
-    if (audioCtx.state === 'suspended') audioCtx.resume();
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    osc.connect(gain); gain.connect(audioCtx.destination);
-    osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-    osc.type = type;
-    gain.gain.setValueAtTime(volume, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
-    osc.start(audioCtx.currentTime);
-    osc.stop(audioCtx.currentTime + duration);
-}
-function playInumanNaAlarm() {
-    playNote(196, 0.5, 0.55, 'sawtooth');
-    setTimeout(() => playNote(220, 0.45, 0.50, 'sawtooth'), 350);
-    setTimeout(() => playNote(262, 0.55, 0.52, 'sawtooth'), 700);
-    setTimeout(() => { playNote(311, 0.3, 0.60, 'sawtooth'); playNote(349, 0.3, 0.62, 'sawtooth'); }, 1100);
-    setTimeout(() => { playNote(392, 0.4, 0.65, 'sawtooth'); playNote(466, 0.4, 0.68, 'sawtooth'); }, 1600);
-    setTimeout(() => playNote(523, 0.25, 0.70, 'sawtooth'), 2200);
-    setTimeout(() => playNote(554, 0.25, 0.72, 'sawtooth'), 2450);
-    setTimeout(() => playNote(587, 0.25, 0.74, 'sawtooth'), 2700);
-    setTimeout(() => playNote(622, 0.30, 0.76, 'sawtooth'), 2950);
-    setTimeout(() => { playNote(392, 1.8, 0.70, 'sawtooth'); playNote(466, 1.8, 0.72, 'sawtooth'); playNote(311, 2.2, 0.75, 'sawtooth'); }, 3500);
-    setTimeout(() => { playNote(147, 4.0, 0.65, 'sawtooth'); playNote(196, 4.0, 0.60, 'sawtooth'); }, 6000);
-}
-
-// ─────────────────────────────────────────────
-// LOGIN / SIGN UP – with success message
-// ─────────────────────────────────────────────
-let isLogin = true;
-let currentUser = null;
-const loginSection = document.getElementById("loginSection");
-const challengeSection = document.getElementById("challengeSection");
-const authMessage = document.getElementById("authMessage");
-const usernameInput = document.getElementById("username");
-const passwordInput = document.getElementById("password");
-const authBtn = document.getElementById("authBtn");
-
-function updateAuthButtonText() {
-    authBtn.innerText = isLogin ? "Login" : "Sign Up";
-}
-
-function toggleForm() {
-    isLogin = !isLogin;
-    document.getElementById("formTitle").innerText = isLogin ? "Login" : "Sign Up";
-    authMessage.innerText = "";
-    authMessage.classList.remove("success", "error");
-    usernameInput.value = "";
-    passwordInput.value = "";
-    updateAuthButtonText();
-}
-
-function handleAuth() {
-    const username = usernameInput.value.trim();
-    const password = passwordInput.value.trim();
-
-    if (!username || !password) {
-        authMessage.innerText = "Fill all fields!";
-        authMessage.classList.add("error");
-        return;
-    }
-
-    let users = JSON.parse(localStorage.getItem("users")) || {};
-
-    if (isLogin) {
-        // LOGIN
-        if (users[username] && users[username].password === password) {
-            currentUser = username;
-            localStorage.setItem("loggedInUser", username);
-            showChallenge(username);
-        } else {
-            authMessage.innerText = "Invalid username or password!";
-            authMessage.classList.add("error");
-        }
-    } else {
-        // SIGN UP
-        if (users[username]) {
-            authMessage.innerText = "Username already exists!";
-            authMessage.classList.add("error");
-        } else {
-            users[username] = {
-                password,
-                streaks: { easy: 0, moderate: 0, hard: 0 },
-                lastCompletionDays: { easy: "", moderate: "", hard: "" }
-            };
-            localStorage.setItem("users", JSON.stringify(users));
-
-            // SUCCESS MESSAGE
-            authMessage.innerHTML = 'Account Created Successfully! ✅<br><small>Now login with your username & password.</small>';
-            authMessage.classList.add("success");
-            authMessage.classList.remove("error");
-
-            // Clear fields & switch to Login
-            usernameInput.value = "";
-            passwordInput.value = "";
-            toggleForm();
-        }
-    }
-}
-
-authBtn.addEventListener("click", handleAuth);
-
-function showChallenge(username) {
-    loginSection.style.display = "none";
-    challengeSection.style.display = "block";
-    document.getElementById("displayUser").innerText = username;
-    loadUserStreaks();
-    document.getElementById("startHint").style.display = "block";
-}
-
-function logout() {
-    currentUser = null;
-    localStorage.removeItem("loggedInUser");
-    challengeSection.style.display = "none";
-    loginSection.style.display = "block";
-    stopTimer();
-}
-
-window.onload = function() {
-    updateAuthButtonText();
-    const saved = localStorage.getItem("loggedInUser");
-    if (saved) {
-        currentUser = saved;
-        showChallenge(saved);
-    }
-};
-
-// ─────────────────────────────────────────────
-// STREAKS – one +1 per level per calendar day
-// ─────────────────────────────────────────────
-const streakElements = {
-    easy: document.getElementById("easyStreakCount"),
-    moderate: document.getElementById("moderateStreakCount"),
-    hard: document.getElementById("hardStreakCount")
-};
-
-function loadUserStreaks() {
-    if (!currentUser) return;
-    const users = JSON.parse(localStorage.getItem("users")) || {};
-    const userData = users[currentUser] || {
-        streaks: {easy:0, moderate:0, hard:0},
-        lastCompletionDays: {easy:"", moderate:"", hard:""}
-    };
-    streakElements.easy.innerText = userData.streaks.easy || 0;
-    streakElements.moderate.innerText = userData.streaks.moderate || 0;
-    streakElements.hard.innerText = userData.streaks.hard || 0;
-}
-
-function saveUserData(updates) {
-    if (!currentUser) return;
-    const users = JSON.parse(localStorage.getItem("users")) || {};
-    if (!users[currentUser]) return;
-    users[currentUser] = { ...users[currentUser], ...updates };
-    localStorage.setItem("users", JSON.stringify(users));
-}
-
-function completeExercise(level, auto = false) {
-    if (!level || !currentUser) {
-        challengeMessage.innerText = "No challenge or user selected!";
-        return;
-    }
-    const users = JSON.parse(localStorage.getItem("users")) || {};
-    const userData = users[currentUser] || {
-        streaks: {easy:0, moderate:0, hard:0},
-        lastCompletionDays: {easy:"", moderate:"", hard:""}
-    };
-    const today = new Date().toISOString().split('T')[0];
-    const lastDay = userData.lastCompletionDays[level] || "";
-    if (lastDay === today) {
-        challengeMessage.innerText = `Already earned credit for ${level} today!`;
-        challengeMessage.style.color = "#ffdd57";
-        return;
-    }
-    let streak = userData.streaks[level] || 0;
-    if (lastDay && new Date(lastDay) < new Date(today)) {
-        const daysMissed = Math.floor((new Date(today) - new Date(lastDay)) / (1000*60*60*24));
-        if (daysMissed > 1) streak = 0;
-    }
-    streak++;
-    const newStreaks = { ...userData.streaks, [level]: streak };
-    const newDays = { ...userData.lastCompletionDays, [level]: today };
-    saveUserData({ streaks: newStreaks, lastCompletionDays: newDays });
-    streakElements[level].innerText = streak;
-    quoteBox.innerText = "💬 " + quotes[Math.floor(Math.random() * quotes.length)];
-    challengeMessage.innerText = auto ? "Tapos na! " + level + " streak +1" : "Great job! " + level + " streak updated!";
-    challengeMessage.style.color = "#00ff88";
-    stopTimer();
-    completeBtn.style.display = "none";
-}
-
-// ─────────────────────────────────────────────
-// TIMER & CHALLENGE – FIXED TIMER DISPLAY
-// ─────────────────────────────────────────────
-let currentTimer = null;
-let currentLevel = null;
-
-const timerDisplay = document.getElementById("timerDisplay");
-const startTimerBtn = document.getElementById("startTimerBtn");
-const completeBtn = document.getElementById("completeBtn");
-const timerSection = document.getElementById("timerSection");
-const challengeMessage = document.getElementById("challengeMessage");
-const quoteBox = document.getElementById("quoteBox");
-const startHint = document.getElementById("startHint");
-
-const quotes = [
-    "Push yourself.",
-    "Success starts with discipline.",
-    "Small progress is progress.",
-    "Your only limit is you.",
-    "Keep going – you're stronger than you think!",
-    "One rep closer to your goal.",
-    "Tapos na ang pahinga... gising!",
-    "The pain you feel today will be the strength you feel tomorrow.",
-    "Discipline is choosing between what you want now and what you want most.",
-    "Your body can stand almost anything. It's your mind you have to convince.",
-    "The only bad workout is the one that didn't happen.",
-    "When you feel like quitting, remember why you started.",
-    "Small progress is still progress. Keep showing up.",
-    "You are one workout away from a better mood.",
-    "Struggle today = story tomorrow.",
-    "Fall in love with taking care of yourself.",
-    "The body achieves what the mind believes.",
-    "Comfort is the enemy of progress.",
-    "You didn't come this far to only come this far.",
-    "Champions are made when nobody is watching.",
-    "It's not about perfect. It's about effort.",
-    "Make yourself proud — not tomorrow, right now.",
-    "Every rep is a vote for the person you want to become.",
-    "Pain is temporary. Quitting lasts forever.",
-    "What you do today can improve all your tomorrows.",
-    "Don't wish for it — work for it.",
-    "Be stronger than your excuses.",
-    "A year from now you'll wish you started today.",
-    "Hard work beats talent when talent doesn't work hard.",
-    "Sore today. Strong tomorrow.",
-    "You owe yourself the version of you that shows up every day.",
-    "The resistance you feel is the growth trying to happen.",
-    "Stop waiting for motivation. Become the motivation.",
-    "Your mind will quit 100 times before your body does. Fight through it.",
-    "This is the part most people quit. Keep going.",
-    "One day you will thank yourself for not giving up.",
-    "Strength doesn't come from what you can do. It comes from overcoming what you thought you couldn't.",
-    "The harder the battle, the sweeter the victory.",
-    "You are capable of more than you think.",
-    "Make today so awesome that yesterday gets jealous.",
-    "Your only limit is you — and you're about to break it.",
-    "Every champion was once a contender who refused to give up.",
-    "The moment you want to quit is the moment you need to keep pushing.",
-    "Your health is an investment, not an expense.",
-    "Wake up. Work hard. Repeat.",
-    "Success is what happens after you’ve survived all the times you wanted to give up.",
-    "You don’t have to be great to start, but you have to start to be great.",
-    "The best project you’ll ever work on is yourself.",
-    "Prove them wrong — especially the voice in your head.",
-    "Growth and comfort do not coexist.",
-    "You become what you repeatedly do.",
-    "This is your reminder that you can do hard things.",
-    "Keep the promises you make to yourself.",
-    "You are not here to be average — you are here to be legendary.",
-    "The comeback is always stronger than the setback.",
-    "Nobody who ever gave their best regretted it.",
-    "Believe in your infinite potential."
-];
-
-const exercises = {
-  easy: [
-    {name:"Jumping Jacks", img:"https://spotebi.com/wp-content/uploads/2014/10/jumping-jacks-exercise-illustration.gif", desc:"Do 15 Jumping Jacks.", type:"reps"},
-    {name:"Wall Sit", img:"https://marathonhandbook.com/wp-content/uploads/2022/09/Wall-Sit-Calf-Raise.gif", desc:"Hold for 30 seconds.", type:"time", durationSeconds:30},
-    {name:"Arm Circles", img:"https://cdn.jefit.com/assets/img/exercises/gifs/867.gif", desc:"Do arm circles for 1 minute.", type:"time", durationSeconds:60},
-    {name:"Neck Rolls", img:"https://spotebi.com/wp-content/uploads/2015/03/neck-rolls-exercise-illustration.gif", desc:"Slowly roll your neck for 30 seconds.", type:"time", durationSeconds:30},
-    {name:"Marching in place",img:"https://i.pinimg.com/originals/f9/52/6a/f9526a943772f04f69cda6bcdb5b1d00.gif", desc:"Do Marching in place for 1 minute.", type:"time", durationSeconds:60},
-    {name:"Glute Bridge", img:"https://cdn.jefit.com/assets/img/exercises/gifs/194.gif", desc:"Do Glute Bridge for 45 seconds.", type:"time", durationSeconds:45},
-    {name:"Superman Exercise",img:"https://barbend.com/wp-content/uploads/2023/10/superman-barbend-movement-gif-masters.gif", desc:"Do Superman Exercise for 15 reps.", type:"reps"},
-    {name:"Step-Back Lunges", img:"https://cdn.jefit.com/assets/img/exercises/gifs/1219.gif", desc:"Do Step-Back Lunges for 20 reps.", type:"reps"},
-  ],
-  moderate:[
-    {name:"Push-ups", img:"https://nypost.com/wp-content/uploads/sites/2/2019/03/perfect-pushup.gif?w=1000", desc:"Do 15 push-ups.", type:"reps"},
-    {name:"Squats", img:"https://cdn.jefit.com/assets/img/exercises/gifs/493.gif", desc:"Perform 20 squats.", type:"reps"},
-    {name:"Lunges", img:"https://barbend.com/wp-content/uploads/2022/05/lunge-barbend-movement-gif-masters.gif", desc:"Do 20 alternating lunges.", type:"reps"},
-    {name:"Shoulder Taps", img:"https://cdn.jefit.com/assets/img/exercises/gifs/1427.gif", desc:"Tap each shoulder while holding a plank position for 30 seconds.", type:"time", durationSeconds:30},
-    {name:"Mountain climbers",img:"https://cdn.jefit.com/assets/img/exercises/gifs/484.gif", desc:"Do mountain climbers for 30–60 seconds.", type:"time", durationSeconds:60},
-    {name:"Donkey Kicks", img:"https://spotebi.com/wp-content/uploads/2015/01/donkey-kicks-exercise-illustration.gif", desc:"Do Donkey kicks 20 reps per leg.", type:"reps"},
-    {name:"Russian Twists", img:"https://barbend.com/wp-content/uploads/2024/04/russian-twist-barbend-movement-gif-masters-1.gif", desc:"Do Russian Twists 20-30 reps.", type:"reps"},
-    {name:"Standing Side Crunch", img:"https://spotebi.com/wp-content/uploads/2015/12/standing-side-crunch-exercise-illustration.gif", desc:"Perform 30 Standing Side Crunch.", type:"reps"},
-  ],
-  hard:[
-    {name:"Burpees", img:"https://barbend.com/wp-content/uploads/2021/07/burpee-barbend-movement-gif-masters.gif", desc:"Do 20 burpees.", type:"reps"},
-    {name:"Plank", img:"https://cdn.jefit.com/assets/img/exercises/gifs/631.gif", desc:"Hold plank for 1 minute.", type:"time", durationSeconds:60},
-    {name:"Jump Squats", img:"https://media.tenor.com/KTAavalOAWQAAAAM/squat-jumps.gif", desc:"Do 20 jump squats.", type:"reps"},
-    {name:"High knees", img:"https://barbend.com/wp-content/uploads/2024/05/high-knees-barbend-movement-gif-masters.gif", desc:"Do high knees for 30–60 seconds.", type:"time", durationSeconds:60},
-    {name:"Side plank", img:"https://barbend.com/wp-content/uploads/2022/11/side-plank-barbend-movement-gif-masters-1.gif", desc:"Do 1 minute side plank.", type:"time", durationSeconds:60},
-    {name:"Bicycle Crunch", img:"https://spotebi.com/wp-content/uploads/2014/10/bicycle-crunches-exercise-illustration.gif", desc:"Do Bicycle Crunch 30-40 reps.", type:"reps"},
-    {name:"Clap Push-Up", img:"https://steemitimages.com/DQmVYXC2fEp9JS6uHmQqEWYfZPZ9nVR9ofKTEmewkgWWFJZ/clap_push-up.gif", desc:"Do 12 Clap Push-Up.", type:"reps"},
-    {name:"Lunge Jump", img:"https://spotebi.com/wp-content/uploads/2015/02/jumping-lunges-exercise-illustration.gif", desc:"Do 30-60 Lunge Jump.", type:"reps"},
-  ]
-};
-
-function formatTime(seconds) {
-    if (seconds <= 0) return "00:00";
-    const min = Math.floor(seconds / 60);
-    const sec = seconds % 60;
-    return `${min.toString().padStart(2,'0')}:${sec.toString().padStart(2,'0')}`;
-}
-
-function stopTimer() {
-    if (currentTimer) clearInterval(currentTimer);
-    currentTimer = null;
-    timerDisplay.innerText = "—:--";
-    timerDisplay.classList.remove("completed");
-}
-
-function startCountdown(duration) {
-    stopTimer();
-    let timeLeft = duration;
-    timerDisplay.innerText = formatTime(timeLeft);
-
-    currentTimer = setInterval(() => {
-        timeLeft--;
-        timerDisplay.innerText = formatTime(timeLeft);
-        if (timeLeft <= 0) {
-            clearInterval(currentTimer);
-            currentTimer = null;
-            timerDisplay.innerText = "Done!";
-            timerDisplay.classList.add("completed");
-            playInumanNaAlarm();
-            completeExercise(currentLevel, true);
-        }
-    }, 1000);
-}
-
-completeBtn.addEventListener("click", () => {
-    if (currentLevel) completeExercise(currentLevel, false);
-});
-
-startTimerBtn.addEventListener("click", () => {
-    initAudio();
-    audioCtx.resume();
-    startTimerBtn.disabled = true;
-    startTimerBtn.innerText = "Timer Running...";
-});
-
-function generateChallenge(level) {
-    currentLevel = level;
-    stopTimer();
-    challengeMessage.innerText = "";
-    completeBtn.style.display = "none";
-    startTimerBtn.disabled = false;
-    startTimerBtn.innerText = "Start Timer";
-
-    document.getElementById("startHint").style.display = "none";
-
-    const list = exercises[level] || [];
-    if (list.length === 0) {
-        challengeMessage.innerText = "No exercises for this level yet.";
-        return;
-    }
-
-    const selected = list[Math.floor(Math.random() * list.length)];
-
-    document.getElementById("exerciseName").innerText = selected.name;
-    document.getElementById("exerciseImage").src = selected.img;
-    document.getElementById("exerciseImage").style.display = "block";
-    document.getElementById("exerciseDescription").innerText = selected.desc;
-
-    completeBtn.style.display = "inline-block";
-
-    // ────────────── FIXED: Show timer immediately for time-based exercises ──────────────
-    if (selected.type === "time" && selected.durationSeconds) {
-        timerSection.style.display = "block";
-        timerDisplay.innerText = formatTime(selected.durationSeconds); // Set initial time RIGHT NOW
-        timerDisplay.classList.remove("completed");
-        startTimerBtn.onclick = () => startCountdown(selected.durationSeconds);
-    } else {
-        timerSection.style.display = "none";
-        startTimerBtn.onclick = null;
-    }
-}
-</script>
+        // Audio functionality
+        document.getElementById("play-audio").addEventListener("click", function () {
+            const audio = new Audio("your-audio-file.mp3");
+            audio.play();
+        });
+    </script>
 </body>
-
 </html>
